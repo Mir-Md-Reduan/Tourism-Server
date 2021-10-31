@@ -4,6 +4,7 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -31,9 +32,17 @@ async function run() {
             res.send(places);
         })
 
+        // POST API
+        app.post('/booking', async (req, res) => {
+            const service = req.body;
+            console.log('Hit the post API', service);
+            const result = await servicesCollection.insertOne(service);
+            console.log(result);
+            res.json(result);
 
-
-    } finally {
+        });
+    }
+    finally {
         // await client.close();
     }
 }
