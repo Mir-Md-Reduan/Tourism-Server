@@ -82,7 +82,7 @@ async function run() {
 
         /// delete order
 
-        app.delete("/delteOrder/:id", async (req, res) => {
+        app.delete("/deleteOrder/:id", async (req, res) => {
             const result = await userBooking.deleteOne({
                 _id: ObjectId(req.params.id),
             });
