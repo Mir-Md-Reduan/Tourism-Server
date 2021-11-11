@@ -29,19 +29,25 @@ async function run() {
         const database = client.db("Torism");
         const userCollection = database.collection("Places");
         const userBooking = database.collection("Booking");
-        console.log("db Connected")
+        console.log("db Connected");
+        // API for all places for HOme
         app.get('/places', async (req, res) => {
             const cursor = userCollection.find({});
             const places = await cursor.toArray();
             res.send(places);
         })
-        app.get('/admin', async (req, res) => {
-            const cursor = userCollection.find({});
-            const places = await cursor.toArray();
-            res.send(places);
-        })
 
-        // POST API
+        // delete Places
+
+        app.delete("/delteOrder/:id", async (req, res) => {
+            const result = await userCollection.deleteOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+
+        // POST API For Booking 
         app.post('/booking', async (req, res) => {
             const service = req.body;
             console.log('Hit the post API', service);
@@ -51,17 +57,25 @@ async function run() {
 
         });
 
-        // get single product
+        // get single Place
         app.get("/singlePlace/:id", async (req, res) => {
             const result = await userCollection
                 .find({ _id: ObjectId(req.params.id) })
                 .toArray();
             res.send(result[0]);
         });
-        // Get All My Orders
+        // Get All My Orders by email
         app.get("/myOrders/:email", async (req, res) => {
             const result = await userBooking
                 .find({ email: req.params.email })
+                .toArray();
+            res.send(result);
+        });
+
+        // Get All My Orders for admin
+        app.get("/allOrders", async (req, res) => {
+            const result = await userBooking
+                .find({})
                 .toArray();
             res.send(result);
         });
@@ -74,14 +88,28 @@ async function run() {
             });
             res.send(result);
         });
-
+        // Adding New Tour Spot API 
         app.post('/addTourSpot', async (req, res) => {
             const service = req.body;
             console.log('Hit the post API', service);
-            const result = await servicesCollection.insertOne(service);
+            const result = await userCollection.insertOne(service);
             console.log(result);
             res.json(result);
 
+        });
+        // updated Status for pending
+        app.put("/updateStatus/:id", (req, res) => {
+            const id = req.params.id;
+            const updatedStatus = req.body.status;
+            const filter = { _id: ObjectId(id) };
+            console.log(updatedStatus);
+            userBooking
+                .updateOne(filter, {
+                    $set: { status: updatedStatus },
+                })
+                .then((result) => {
+                    res.send(result);
+                });
         });
     }
     finally {
